@@ -1,0 +1,13 @@
+# Build artifacts
+*.o
+*.so
+*.dll
+*.exe
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Memory dumps
+*.dump
+/quarantine/ 

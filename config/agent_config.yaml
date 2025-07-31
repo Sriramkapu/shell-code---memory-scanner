@@ -1,0 +1,16 @@
+# agent_config.yaml
+monitored_processes:
+  - python.exe
+dump_path: /quarantine/
+alert_server: http://127.0.0.1:5000/alert 
+email:
+  smtp_server: smtp.gmail.com
+  smtp_port: 587
+  smtp_user: sriramreddykapu@gmail.com
+  smtp_password: tbso qffh igxg tugf
+  recipients:
+    - sriramreddykapu@gmail.com 
+scan_interval_seconds: 5
+scan_paths:
+  - "C:\\Users\\ram14\\OneDrive\\Desktop"
+  - "C:\\Users\\ram14\\OneDrive\\Desktop\\test_malware.txt"
