@@ -10,4 +10,25 @@ __pycache__/
 
 # Memory dumps
 *.dump
-/quarantine/ 
+/quarantine/
+
+# Log files (can be large)
+logs/*.jsonl
+logs/*.log
+*.log
+
+# Large data files
+*.dump
+*.mem
+*.bin
+
+# Environment files
+.env
+.venv/
+venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo 
