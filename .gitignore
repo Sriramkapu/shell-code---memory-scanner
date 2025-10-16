@@ -1,3 +1,33 @@
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+.env
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & Reports
+logs/
+reports/
+
+# Credentials/Secrets
+config/agent_config.yaml
+client_secrets.json
+service-account-key.json
+token.pickle
+
+# Scratch/Temp
+scratch_*.py
+tmp_test_str.txt
+
+# Build artifacts
+build/
+*.dll
+*.so
+*.dylib
 # Build artifacts
 *.o
 *.so

@@ -14,3 +14,54 @@ scan_interval_seconds: 5
 scan_paths:
   - "C:\\Users\\ram14\\OneDrive\\Desktop"
   - "C:\\Users\\ram14\\OneDrive\\Desktop\\test_malware.txt"
+
+# Google Drive Storage Configuration (Service Account)
+google_drive:
+  enabled: true
+  folder_name: "Memory Shellcode Detection"
+  email: "ram144973@gmail.com"
+  service_account_file: "service-account-key.json"  # Use service account
+  auto_upload_interval: 300  # seconds
+
+# Legacy Cloud Storage Configuration (disabled)
+cloud_storage:
+  enabled: false
+  primary_provider: "aws"
+  auto_upload_interval: 300
+  
+  # AWS S3 Configuration
+  aws:
+    access_key_id: "YOUR_AWS_ACCESS_KEY"
+    secret_access_key: "YOUR_AWS_SECRET_KEY"
+    region: "us-east-1"
+    bucket_name: "your-detection-logs-bucket"
+  
+  # Azure Blob Storage Configuration
+  azure:
+    connection_string: "YOUR_AZURE_CONNECTION_STRING"
+    container_name: "detection-logs"
+  
+  # Google Cloud Storage Configuration
+  gcp:
+    credentials_path: "path/to/your/service-account-key.json"
+    bucket_name: "your-detection-logs-bucket"
+
+# SIEM/ELK Integration Configuration
+siem:
+  enabled: false
+  elasticsearch_url: "http://localhost:9200"
+  kibana_url: "http://localhost:5601"
+  index_name: "detections"
+  
+  # Splunk HEC Configuration
+  splunk:
+    enabled: false
+    hec_url: "https://your-splunk-instance:8088/services/collector"
+    hec_token: "YOUR_SPLUNK_HEC_TOKEN"
+
+# PDF Reporting Configuration
+reporting:
+  enabled: true
+  report_dir: "../reports"
+  auto_generate: false
+  include_memory_dumps: false
