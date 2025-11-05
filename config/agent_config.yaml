@@ -19,9 +19,9 @@ scan_paths:
 
 # SIEM/ELK Integration Configuration
 siem:
-  enabled: false
-  elasticsearch_url: "http://localhost:9200"
-  kibana_url: "http://localhost:5601"
+  enabled: true  # Enabled for enterprise-ready deployment
+  elasticsearch_url: "http://localhost:9200"  # Use http://elasticsearch:9200 in Docker
+  kibana_url: "http://localhost:5601"  # Use http://kibana:5601 in Docker
   index_name: "detections"
   
   # Splunk HEC Configuration
