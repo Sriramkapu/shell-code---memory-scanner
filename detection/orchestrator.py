@@ -258,16 +258,10 @@ def log_detection(event):
 # --- Main orchestration ---
 def main():
     parser = argparse.ArgumentParser(description="Orchestrator for memory and disk scanning.")
-    parser.add_argument('--single-scan', action='store_true', help='Run a single scan and exit (default behavior)')
-    parser.add_argument('--auto-mode', action='store_true', help='Run in continuous monitoring mode (auto mode)')
+    parser.add_argument('--single-scan', action='store_true', help='Run a single scan and exit (for quick test)')
     parser.add_argument('--generate-report', action='store_true', help='Generate PDF report after scan')
     parser.add_argument('--rules', type=str, default=None, help='Path to YARA rules file to load (overrides default)')
     args = parser.parse_args()
-    
-    # Check environment variable for auto mode (defaults to False/disabled)
-    auto_mode_env = os.environ.get('AUTO_MODE', 'false').lower() in ('true', '1', 'yes')
-    # Enable auto mode if either flag is set or env var is true
-    auto_mode = args.auto_mode or auto_mode_env
     
     print("Loading config...")
     config = load_config()
@@ -295,17 +289,6 @@ def main():
         print("PDF reporting enabled")
     else:
         print("PDF reporting not enabled")
-    
-    # Display mode
-    if auto_mode:
-        print("=" * 60)
-        print("Running in AUTO MODE (continuous monitoring)")
-        print("=" * 60)
-    else:
-        print("=" * 60)
-        print("Running in SINGLE SCAN MODE")
-        print("Use --auto-mode flag or set AUTO_MODE=true to enable continuous monitoring")
-        print("=" * 60)
     
     print("Validating and compiling YARA rules...")
     rules_path = args.rules if args.rules else YARA_RULES_PATH
@@ -502,8 +485,8 @@ def main():
         if memory_findings >= MAX_MEMORY_FINDINGS or disk_count >= MAX_DISK_FINDINGS:
             print("Global findings cap reached. Stopping orchestrator.")
             break
-        # Exit if single scan mode (default, unless auto mode is enabled)
-        if not auto_mode:
+        # Exit if single scan mode
+        if args.single_scan:
             print("Single scan complete. Exiting.")
             break
         

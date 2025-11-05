@@ -32,9 +32,9 @@ COPY agent/ ./agent/
 # Create necessary directories
 RUN mkdir -p /app/logs /app/reports /quarantine
 
-# Set environment variables
+# Set environment variables for auto mode
 ENV PYTHONUNBUFFERED=1
-ENV AUTO_MODE=false
+ENV AUTO_MODE=true
 
-# Run orchestrator in single scan mode by default (auto mode disabled)
-CMD ["python", "detection/orchestrator.py", "--single-scan"] 
+# Run orchestrator in continuous mode (auto mode)
+CMD ["python", "detection/orchestrator.py"] 

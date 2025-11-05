@@ -16,8 +16,7 @@ services:
       - SYS_PTRACE
     environment:
       - PYTHONUNBUFFERED=1
-      - AUTO_MODE=false
-    # Auto mode disabled - runs single scan by default
-    # To enable auto mode, change AUTO_MODE=true and uncomment command below:
-    # command: python detection/orchestrator.py
+      - AUTO_MODE=true
+    # For single scan mode, uncomment the command below and comment out the build section
+    # command: python detection/orchestrator.py --single-scan
 
