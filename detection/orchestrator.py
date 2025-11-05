@@ -290,8 +290,21 @@ def main():
     else:
         print("PDF reporting not enabled")
     
-    print("Compiling YARA rules...")
+    print("Validating and compiling YARA rules...")
     rules_path = args.rules if args.rules else YARA_RULES_PATH
+    
+    # Validate YARA rules integrity
+    try:
+        from utils.yara_validator import validate_yara_rules
+        validation = validate_yara_rules(rules_path)
+        if not validation['valid']:
+            print(f"⚠️  YARA rules validation warnings: {validation.get('errors', [])}")
+        else:
+            print(f"✓ YARA rules validated: {validation['rule_count']} rules loaded")
+            print(f"  SHA256: {validation['file_hash'][:16]}...")
+    except Exception as e:
+        print(f"⚠️  YARA validation skipped: {e}")
+    
     rules = yara_scanner.load_rules(rules_path)
     seen_hashes = set()
     seen_disk = set()
