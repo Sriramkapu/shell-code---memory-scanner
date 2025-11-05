@@ -10,60 +10,41 @@ from pathlib import Path
 
 
 class RotatingJSONLogger:
-    """JSON logger with rotating file handler"""
-    
+    """JSON logger that writes JSONL without locking files on Windows."""
+
     def __init__(self, log_file_path, max_bytes=10*1024*1024, backup_count=5):
         """
-        Initialize rotating JSON logger
-        
+        Initialize logger
+
         Args:
             log_file_path: Path to log file
-            max_bytes: Maximum size of log file before rotation (default: 10MB)
-            backup_count: Number of backup files to keep (default: 5)
+            max_bytes: Unused placeholder retained for backward compatibility
+            backup_count: Unused placeholder retained for backward compatibility
         """
         self.log_file_path = log_file_path
         self.log_dir = os.path.dirname(log_file_path)
-        
+
         # Ensure log directory exists
         os.makedirs(self.log_dir, exist_ok=True)
-        
-        # Set up rotating file handler
-        handler = logging.handlers.RotatingFileHandler(
-            log_file_path,
-            maxBytes=max_bytes,
-            backupCount=backup_count,
-            encoding='utf-8'
-        )
-        
-        # Create formatter
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        
-        # Set up logger
+
+        # Configure a lightweight standard logger (no file handlers to avoid locks)
         self.logger = logging.getLogger('detection_engine')
         self.logger.setLevel(logging.INFO)
-        self.logger.addHandler(handler)
-        
-        # Prevent duplicate handlers
-        if len(self.logger.handlers) > 1:
-            self.logger.handlers.pop(0)
+        # Ensure we don't attach multiple stream handlers across tests/runs
+        if not any(isinstance(h, logging.StreamHandler) for h in self.logger.handlers):
+            self.logger.addHandler(logging.StreamHandler())
     
     def log_detection(self, event):
-        """Log detection event as JSON"""
+        """Log detection event as a single JSONL line without duplicates."""
         try:
-            # Ensure event has timestamp
             if 'timestamp' not in event:
                 event['timestamp'] = datetime.now(timezone.utc).isoformat()
-            
-            # Write as JSON line
+
+            # Write exactly one JSON line to the log file
             with open(self.log_file_path, 'a', encoding='utf-8') as f:
                 f.write(json.dumps(event) + '\n')
-            
-            # Also log to standard logger
-            self.logger.info(f"Detection: {event.get('yara_match', [])} - {event.get('severity', 'Unknown')}")
         except Exception as e:
+            # Fall back to console logging for visibility
             self.logger.error(f"Failed to log detection event: {e}")
     
     def log_error(self, message, exc_info=None):

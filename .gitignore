@@ -1,5 +1,45 @@
 # Python
 __pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE/editor
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and reports
+logs/
+reports/
+*.log
+*.jsonl
+
+# Build
+build/
+
+# Byte-compiled C extensions
+*.so
+*.pyd
+
+# Docker
+*.pid
+
+# Python
+__pycache__/
 .pytest_cache/
 .venv/
 .env
