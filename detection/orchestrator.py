@@ -13,7 +13,6 @@ import subprocess
 import argparse
 import requests
 from utils.email_notifier import send_email_notification, send_detection_email_notification
-from utils.google_drive_storage import GoogleDriveStorageManager
 
 print("Orchestrator script started")
 
@@ -225,17 +224,7 @@ def load_config():
     with open(CONFIG_PATH, 'r') as f:
         return yaml.safe_load(f)
 
-# --- Initialize Google Drive storage ---
-def initialize_google_drive_storage(config):
-    """Initialize Google Drive storage manager if enabled"""
-    if config.get('google_drive', {}).get('enabled', False):
-        try:
-            drive_manager = GoogleDriveStorageManager(config)
-            return drive_manager
-        except Exception as e:
-            print(f"Failed to initialize Google Drive storage: {e}")
-            return None
-    return None
+# Google Drive and cloud storage removed - using Docker instead
 
 # --- Agent bindings (stub) ---
 # In real use, load the compiled agent_core shared library via ctypes/cffi
@@ -282,18 +271,8 @@ def main():
     scan_paths = config.get('scan_paths', [])
     scan_interval = config.get('scan_interval_seconds', 60)
     
-    # Initialize Google Drive storage
-    print("Initializing Google Drive storage...")
-    drive_manager = initialize_google_drive_storage(config)
-    if drive_manager:
-        print("Google Drive storage initialized successfully")
-        # Start auto upload for log file
-        drive_manager.start_auto_upload(
-            LOG_PATH, 
-            config.get('google_drive', {}).get('auto_upload_interval', 300)
-        )
-    else:
-        print("Google Drive storage not enabled or failed to initialize")
+    # Google Drive and cloud storage removed - using Docker instead
+    print("Storage: Using Docker for containerized deployment")
     
     # Initialize SIEM integration
     print("Initializing SIEM integration...")
@@ -428,14 +407,6 @@ def main():
                 log_detection(event)
                 all_events.append(event)
                 
-                # Upload to Google Drive if available
-                if drive_manager:
-                    try:
-                        drive_manager.upload_log_entry(event)
-                        print("Event uploaded to Google Drive")
-                    except Exception as e:
-                        print(f"Failed to upload to Google Drive: {e}")
-                
                 # Send to SIEM
                 if siem.enabled:
                     siem.send_to_elasticsearch(event)
@@ -474,14 +445,6 @@ def main():
             log_detection(event)
             all_events.append(event)
             
-            # Upload to Google Drive if available
-            if drive_manager:
-                try:
-                    drive_manager.upload_log_entry(event)
-                    print("Disk event uploaded to Google Drive")
-                except Exception as e:
-                    print(f"Failed to upload disk event to Google Drive: {e}")
-            
             # Send to SIEM
             if siem.enabled:
                 siem.send_to_elasticsearch(event)
@@ -509,6 +472,11 @@ def main():
         if memory_findings >= MAX_MEMORY_FINDINGS or disk_count >= MAX_DISK_FINDINGS:
             print("Global findings cap reached. Stopping orchestrator.")
             break
+        # Exit if single scan mode
+        if args.single_scan:
+            print("Single scan complete. Exiting.")
+            break
+        
         print(f"Sleeping for {scan_interval} seconds before next scan...")
         time.sleep(scan_interval)
 

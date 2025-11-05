@@ -1,13 +1,13 @@
 # Memory Shellcode Detection Framework
 
-Enterprise-grade, multi-layered memory shellcode detection and response system with real-time monitoring, cloud integration, and automated reporting.
+Enterprise-grade, multi-layered memory shellcode detection and response system with real-time monitoring, Docker containerization, and automated reporting.
 
 ## ✅ Current Project Status
 
 - All automated tests are passing locally: 16 passed, 1 warning (PyTest return-not-none) as of 2025-10-16.
 - YARA rules updated: removed undefined reference and improved literal string matching.
 - Disk scanner hardened: reliable matching via filepath with safe in-memory fallback.
-- Orchestrator runs end-to-end with `--single-scan`; Google Drive/SIEM/email behave gracefully when not fully configured.
+- Orchestrator runs end-to-end with `--single-scan`; Docker containerization for easy deployment; SIEM/email behave gracefully when not fully configured.
 
 ## 🚀 Features
 
@@ -18,7 +18,7 @@ Enterprise-grade, multi-layered memory shellcode detection and response system w
 - **Process Monitoring**: Live process hooking and syscall tracing
 
 ### Integration & Reporting
-- **Multi-Cloud Storage**: AWS S3, Azure Blob Storage, Google Cloud Storage support
+- **Docker Containerization**: Fully containerized deployment with auto mode for continuous monitoring
 - **SIEM Integration**: Elasticsearch and Splunk HEC integration
 - **Email Alerts**: Real-time SMTP-based notifications with **professional HTML formatting**
 - **PDF Reporting**: Automated detection reports with detailed analysis and **local timezone display**
@@ -56,9 +56,10 @@ major project/
 │   └── yara_rules/
 │       └── sample_shellcode.yar
 ├── utils/
-│   ├── cloud_storage.py      # Multi-cloud storage manager
 │   ├── email_notifier.py     # SMTP alerting system
 │   └── __init__.py
+├── docker/
+│   └── Dockerfile            # Docker containerization for auto mode
 ├── test/                     # Test suite
 ├── logs/                     # Detection logs
 ├── reports/                  # PDF reports (auto-generated)
@@ -71,6 +72,50 @@ major project/
 ```
 
 ## 🛠️ Installation & Setup
+
+### Option 1: Docker Deployment (Recommended)
+
+#### Using Docker Compose (Easiest)
+```bash
+# Start in auto mode (continuous monitoring)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop
+docker-compose down
+
+# Run single scan
+docker-compose run --rm detection-engine python detection/orchestrator.py --single-scan
+```
+
+#### Using Docker Directly
+```bash
+# Build Docker image
+docker build -t detection-engine -f docker/Dockerfile .
+
+# Run in auto mode (continuous monitoring)
+docker run -d \
+  --name detection-engine \
+  -v $(pwd)/logs:/app/logs \
+  -v $(pwd)/reports:/app/reports \
+  -v $(pwd)/config:/app/config \
+  -v /quarantine:/quarantine \
+  --cap-add=SYS_PTRACE \
+  detection-engine
+
+# View logs
+docker logs -f detection-engine
+
+# Run single scan
+docker run --rm \
+  -v $(pwd)/logs:/app/logs \
+  -v $(pwd)/config:/app/config \
+  detection-engine python detection/orchestrator.py --single-scan
+```
+
+### Option 2: Local Installation
 
 ### 1. Prerequisites
 ```bash
@@ -167,14 +212,18 @@ py detection/disk_scanner.py
 
 ## 🔧 Configuration
 
-### Cloud Storage Setup
-```yaml
-cloud_storage:
-  aws:
-    access_key_id: "YOUR_AWS_ACCESS_KEY"
-    secret_access_key: "YOUR_AWS_SECRET_KEY"
-    region: "us-east-1"
-    bucket_name: "your-detection-logs-bucket"
+### Docker Setup
+```bash
+# Build and run with Docker
+docker build -t detection-engine -f docker/Dockerfile .
+docker run -d --name detection-engine detection-engine
+
+# Mount volumes for persistent storage
+docker run -d \
+  -v ./logs:/app/logs \
+  -v ./reports:/app/reports \
+  -v ./config:/app/config \
+  detection-engine
 ```
 
 ### SIEM Integration
@@ -239,7 +288,7 @@ email:
 
 ### Alert Channels
 - Email notifications with detailed event information
-- Cloud storage logging for long-term retention
+- Docker containerized logging for long-term retention
 - SIEM integration for centralized monitoring
 - PDF reports for compliance and analysis
 
@@ -252,8 +301,11 @@ py -m pytest -q
 
 # Test individual components
 py test/test_orchestrator.py
-py test/test_cloud_storage.py
 py test/test_email.py
+
+# Test Docker deployment
+docker build -t detection-engine -f docker/Dockerfile .
+docker run --rm detection-engine python detection/orchestrator.py --single-scan
 ```
 
 ### Sample Malware Testing
@@ -274,8 +326,9 @@ python detection/orchestrator.py --single-scan
 
 ### Data Privacy
 - Memory dumps contain sensitive process data
-- Configure secure cloud storage with encryption
+- Docker volumes provide secure, isolated storage
 - Implement proper access controls for logs and reports
+- Use Docker secrets for sensitive configuration
 
 ### Performance Impact
 - Memory scanning can impact system performance
@@ -304,11 +357,13 @@ For issues and questions:
 
 ## 🔄 Version History
 
+- **v3.0**: Docker containerization for auto mode deployment, removed cloud storage dependencies
 - **v2.1**: Stability improvements to disk scanning, YARA rules refined, Windows-friendly commands
 - **v2.0**: Enhanced with SIEM integration, PDF reporting, and cross-platform memory scanning
-- **v1.0**: Initial release with basic YARA scanning and cloud storage 
+- **v1.0**: Initial release with basic YARA scanning 
 
 ## ℹ️ Notes
 
-- If Google Drive credentials are not configured, the orchestrator will continue running and log informative messages; you can follow `GOOGLE_DRIVE_SETUP.md` to enable uploads.
-- Startup scripts available: `start_detection.ps1` (PowerShell) and `start_detection.bat` (CMD) launch the orchestrator using your installed Python.
+- Docker containerization provides isolated, reproducible deployment in auto mode
+- Startup scripts available: `start_detection.ps1` (PowerShell) and `start_detection.bat` (CMD) launch the orchestrator using your installed Python
+- For Docker deployment, ensure proper volume mounts for logs, reports, and config files

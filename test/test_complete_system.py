@@ -50,28 +50,7 @@ def test_disassembler():
     print("✓ Disassembler analysis working")
 
 
-def test_cloud_storage():
-    """Test cloud storage functionality"""
-    print("Testing cloud storage...")
-
-    from utils.cloud_storage import CloudStorageManager
-
-    # Test with mock config
-    mock_config = {
-        'cloud_storage': {
-            'enabled': False,  # Disable for testing
-            'aws': {
-                'access_key_id': 'test',
-                'secret_access_key': 'test',
-                'region': 'us-east-1',
-                'bucket_name': 'test-bucket'
-            }
-        }
-    }
-
-    cloud_manager = CloudStorageManager(mock_config)
-    assert cloud_manager is not None, "Failed to initialize cloud storage manager"
-    print("✓ Cloud storage manager initialized")
+# Cloud storage test removed - using Docker instead
 
 
 def test_email_notifier():
@@ -156,8 +135,8 @@ def test_configuration():
     with open(config_path, 'r') as f:
         config = yaml.safe_load(f)
 
-    # Check required sections
-    required_sections = ['monitored_processes', 'email', 'cloud_storage', 'siem', 'reporting']
+    # Check required sections (cloud_storage removed - using Docker instead)
+    required_sections = ['monitored_processes', 'email', 'siem', 'reporting']
     for section in required_sections:
         assert section in config, f"Missing {section} in configuration"
 
@@ -192,7 +171,6 @@ def run_complete_test():
         ("YARA Rules", test_yara_rules),
         ("YARA Scanner", test_yara_scanner),
         ("Disassembler", test_disassembler),
-        ("Cloud Storage", test_cloud_storage),
         ("Email Notifier", test_email_notifier),
         ("Disk Scanner", test_disk_scanner),
         ("Orchestrator", test_orchestrator),

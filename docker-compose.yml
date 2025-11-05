@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  detection-engine:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: detection-engine
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+      - ./reports:/app/reports
+      - ./config:/app/config
+      - ./quarantine:/quarantine
+    cap_add:
+      - SYS_PTRACE
+    environment:
+      - PYTHONUNBUFFERED=1
+      - AUTO_MODE=true
+    # For single scan mode, uncomment the command below and comment out the build section
+    # command: python detection/orchestrator.py --single-scan
+
