@@ -7,7 +7,8 @@ Enterprise-grade, multi-layered memory shellcode detection and response system w
 - All automated tests are passing locally: 16 passed, 1 warning (PyTest return-not-none) as of 2025-10-16.
 - YARA rules updated: removed undefined reference and improved literal string matching.
 - Disk scanner hardened: reliable matching via filepath with safe in-memory fallback.
-- Orchestrator runs end-to-end with `--single-scan`; Docker containerization for easy deployment; SIEM/email behave gracefully when not fully configured.
+- Orchestrator runs in single scan mode by default (auto mode disabled); Docker containerization for easy deployment; SIEM/email behave gracefully when not fully configured.
+- **Auto mode**: Disabled by default. Use `--auto-mode` flag or set `AUTO_MODE=true` environment variable to enable continuous monitoring.
 
 ## 🚀 Features
 
@@ -77,8 +78,10 @@ major project/
 
 #### Using Docker Compose (Easiest)
 ```bash
-# Start in auto mode (continuous monitoring)
-docker-compose up -d
+# Start in single scan mode (default - auto mode disabled)
+docker-compose up
+
+# To enable auto mode, edit docker-compose.yml and set AUTO_MODE=true
 
 # View logs
 docker-compose logs -f
@@ -87,13 +90,22 @@ docker-compose logs -f
 docker-compose down
 
 # Run single scan
-docker-compose run --rm detection-engine python detection/orchestrator.py --single-scan
+docker-compose run --rm detection-engine python detection/orchestrator.py
 ```
 
 #### Using Docker Directly
 ```bash
 # Build Docker image
 docker build -t detection-engine -f docker/Dockerfile .
+
+# Run in single scan mode (default - auto mode disabled)
+docker run --rm \
+  -v $(pwd)/logs:/app/logs \
+  -v $(pwd)/reports:/app/reports \
+  -v $(pwd)/config:/app/config \
+  -v /quarantine:/quarantine \
+  --cap-add=SYS_PTRACE \
+  detection-engine
 
 # Run in auto mode (continuous monitoring)
 docker run -d \
@@ -103,16 +115,11 @@ docker run -d \
   -v $(pwd)/config:/app/config \
   -v /quarantine:/quarantine \
   --cap-add=SYS_PTRACE \
-  detection-engine
+  -e AUTO_MODE=true \
+  detection-engine python detection/orchestrator.py --auto-mode
 
 # View logs
 docker logs -f detection-engine
-
-# Run single scan
-docker run --rm \
-  -v $(pwd)/logs:/app/logs \
-  -v $(pwd)/config:/app/config \
-  detection-engine python detection/orchestrator.py --single-scan
 ```
 
 ### Option 2: Local Installation
@@ -173,17 +180,17 @@ reporting:
 
 ### Basic Usage
 ```bash
-# Run single scan (Windows)
-py detection/orchestrator.py --single-scan
-
-# Run with PDF report generation
-py detection/orchestrator.py --single-scan --generate-report
-
-# Run continuous monitoring
+# Run single scan (default - auto mode disabled)
 py detection/orchestrator.py
 
+# Run with PDF report generation
+py detection/orchestrator.py --generate-report
+
+# Run continuous monitoring (enable auto mode)
+py detection/orchestrator.py --auto-mode
+
 # Generic Python
-python detection/orchestrator.py --single-scan
+python detection/orchestrator.py
 ```
 
 ### Service Installation
